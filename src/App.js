@@ -9,42 +9,57 @@ function App() {
 
   useEffect(() => {
     const fetchData = () => {
-      const dataRef = firebase.database().ref('/ZeoData');
-      dataRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const tempEntry = data.temperature_value;
-          const humidityEntry = data.Humidity_value;
-          const airQualityEntry = data.Air_quality;
-
-          if (tempEntry) {
-            const latestTempEntry = Object.values(tempEntry)[0];
-            setTemperature(latestTempEntry.value);
+      console.log("calling")
+      const fetchLastTemperatureValue = () => {
+        const temperatureRef = firebase.database().ref('/ZeoData/temperature_value').orderByKey().limitToLast(1);
+        temperatureRef.on('value', (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const latestEntry = Object.values(data)[0];
+            setTemperature(latestEntry.value);
+          } else {
+            setTemperature('');
           }
-          if (humidityEntry) {
-            const latestHumidityEntry = Object.values(humidityEntry)[0];
-            setHumidity(latestHumidityEntry.value);
-          }
-          if (airQualityEntry) {
-            const latestAirQualityEntry = Object.values(airQualityEntry)[0];
-            setAirQuality(latestAirQualityEntry.value);
-          }
-        }
-      });
-
-      // Return a cleanup function to unsubscribe when component unmounts
-      return () => {
-        dataRef.off();
+        });
       };
+
+      const fetchLastHumidityValue = () => {
+        const humidityRef = firebase.database().ref('/ZeoData/Humidity_value').orderByKey().limitToLast(1);
+        humidityRef.on('value', (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const latestEntry = Object.values(data)[0];
+            setHumidity(latestEntry.value);
+          } else {
+            setHumidity('');
+          }
+        });
+      };
+
+      const fetchLastAirQualityValue = () => {
+        const airQualityRef = firebase.database().ref('/ZeoData/Air_quality').orderByKey().limitToLast(1);
+        airQualityRef.on('value', (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const latestEntry = Object.values(data)[0];
+            setAirQuality(latestEntry.value);
+          } else {
+            setAirQuality('');
+          }
+        });
+      };
+
+      fetchLastTemperatureValue();
+      fetchLastHumidityValue();
+      fetchLastAirQualityValue();
     };
 
     fetchData();
 
-    // Cleanup function to unsubscribe when component unmounts
-    return () => {
-      const dataRef = firebase.database().ref('/ZeoData');
-      dataRef.off();
-    };
+    const interval = setInterval(fetchData, 1000);
+
+    // Cleanup function to clear interval when component unmounts
+    return () => clearInterval(interval);
   }, []);
 
   return (
