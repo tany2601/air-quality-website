@@ -1,0 +1,17 @@
+{
+    "ZeoData": {
+      "temperature_value": {
+        "id": "timestamp",
+        "value": "temperature"
+      },
+      "Humidity_value": {
+        "id": "timestamp",
+        "value": "humidity"
+      },
+      "Air_quality": {
+        "id": "timestamp",
+        "value": "airQuality"
+      }
+    }
+  }
+  
